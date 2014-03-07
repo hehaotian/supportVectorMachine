@@ -1,4 +1,4 @@
-CKYParser
-=========
+Support Vector Machine Decoder
+==============================
 
-CKY parser with CNF grammar
+An SVM decoder
