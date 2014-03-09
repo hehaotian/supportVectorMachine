@@ -14,15 +14,18 @@ import java.math.*;
 
 public class SupportVectorMachine {
     
-	private Map<String, Map<String, Double>> model = new HashMap<String, Map<String, Double>>;
+	private Map<String, Map<String, Double>> model = new HashMap<String, Map<String, Double>>();
 
-	public SupportVectorMachine(String model_path) {
+	public SupportVectorMachine(String model_path) throws IOException {
 		this.model = build_model(model_path);
 	}
 
 	private Map<String, Map<String, Double>> build_model(String model_path) throws IOException {
 		BufferedReader model_file = new BufferedReader(new FileReader(model_path));
-		
+		return model;
 	}
 
+	public void predict(String test_path, PrintStream sys_output) throws IOException {
+		System.out.println("HERE!");
+	}
 }
