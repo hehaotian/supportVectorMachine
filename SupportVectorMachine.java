@@ -3,25 +3,28 @@
 // created by 22:20:05, March 11, 2014
 // LING 572 HW 8
 
-import java.io.PrintStream;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.TreeMap;
-import java.math.*;
+import java.io.*;
+import java.util.*;
 
 public class SupportVectorMachine {
     
-	private Map<String, Map<String, Double>> model = new HashMap<String, Map<String, Double>>();
+	private Map<Double, Integer> model = new HashMap<Double, Integer>();
 
 	public SupportVectorMachine(String model_path) throws IOException {
 		this.model = build_model(model_path);
 	}
 
-	private Map<String, Map<String, Double>> build_model(String model_path) throws IOException {
+	private Map<Double, Integer> build_model(String model_path) throws IOException {
 		BufferedReader model_file = new BufferedReader(new FileReader(model_path));
+		List<String> exptInfo = new ArrayList<String>();
+		String kernel = "";
+		String line = "";
+		while ((line = model_file.readLine()) != "SV") {
+			exptInfo.add(line);
+			System.out.println(line);
+		}
+		line = model_file.readLine();
+		System.out.println(line);
 		return model;
 	}
 

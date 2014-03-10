@@ -20,7 +20,7 @@ public class svm_classify {
       PrintStream sys_output = new PrintStream(args[1]);
 
       SupportVectorMachine svm = new SupportVectorMachine(model_path);
-      svm.predict(test_path, sys_output);
+      // svm.predict(test_path, sys_output);
    }
 
 }
