@@ -8,7 +8,7 @@ import java.util.*;
 
 public class SupportVectorMachine {
     
-	private Map<Double, Integer> model = new HashMap<Double, Integer>();
+	private Map<Double, List<Integer>> model = new HashMap<Double, List<Integer>>();
 	private String kernel_type;
 	private double gamma;
 	private double coef0;
@@ -23,7 +23,7 @@ public class SupportVectorMachine {
 		this.model = build_model(model_path);
 	}
 
-	private Map<Double, Integer> build_model(String model_path) throws IOException {
+	private Map<Double, List<Integer>> build_model(String model_path) throws IOException {
 		BufferedReader model_file = new BufferedReader(new FileReader(model_path));
 		List<String> exptInfo = new ArrayList<String>();
 		String line = "";
@@ -35,11 +35,15 @@ public class SupportVectorMachine {
 				double key = Double.parseDouble(tokens[0]);
 				for (int i = 1; i < tokens.length; i ++) {
 					int value = Integer.parseInt(tokens[i].replaceAll(":1", ""));
-					model.put(key, value);
+					if (!model.containsKey(key)) model.put(key, new ArrayList<Integer>());
+					List<Integer> temp = model.get(key);
+					temp.add(value);
+					model.put(key, temp);
 				}
 			}
 		}
 		getKernelInfo(exptInfo);
+		debugModel(model);
 		return model;
 	}
 
@@ -47,7 +51,7 @@ public class SupportVectorMachine {
 		sys.println("HERE!");
 	}
 
-	public void getKernelInfo(List<String> exptInfo) {
+	private void getKernelInfo(List<String> exptInfo) {
 		for (int i = 0; i < exptInfo.size(); i ++) {
 			String[] tokens = exptInfo.get(i).split(" ");
 			if (tokens[0].equals("kernel_type")) kernel_type = tokens[1];
@@ -68,13 +72,16 @@ public class SupportVectorMachine {
 			if (tokens[0].equals("coef0")) coef0 = Double.parseDouble(tokens[1]);
 			if (tokens[0].equals("degree")) degree = Double.parseDouble(tokens[1]);
 		}
-		System.out.println(gamma);
-		System.out.println(coef0);
-		System.out.println(degree);
 	}
 
-	public boolean kernel(String line) {
+	private boolean kernel(String line) {
 		boolean kernel;
 		return kernel = line.matches(".*[a-zA-Z]+[a-zA-Z]+.*");
+	}
+
+	private void debugModel(Map<Double, List<Integer>> model) {
+		for (double d : model.keySet()) {
+			System.out.println(d + " with its vector info: " + model.get(d));
+		}
 	}
 }
