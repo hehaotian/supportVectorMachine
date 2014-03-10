@@ -23,8 +23,11 @@ public class SupportVectorMachine {
 			exptInfo.add(line);
 			System.out.println(line);
 		}
-		line = model_file.readLine();
-		System.out.println(line);
+		while ((line = model_file.readLine()) == "SV") {
+			while ((line = model_file.readLine()) != null) {
+				break;
+			}
+		}
 		return model;
 	}
 
