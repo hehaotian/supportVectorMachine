@@ -43,8 +43,8 @@ public class SupportVectorMachine {
 		return model;
 	}
 
-	public void predict(String test_path, PrintStream sys_output) throws IOException {
-		System.out.println("HERE!");
+	public void predict(String test_path, PrintStream sys) throws IOException {
+		sys.println("HERE!");
 	}
 
 	public void getKernelInfo(List<String> exptInfo) {
