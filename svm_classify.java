@@ -17,7 +17,7 @@ public class svm_classify {
    public static void main(String[] args) throws IOException {
       String test_path = args[0];
       String model_path = args[1];
-      PrintStream sys_output = new PrintStream(args[1]);
+      PrintStream sys_output = new PrintStream(args[2]);
 
       SupportVectorMachine svm = new SupportVectorMachine(model_path);
       // svm.predict(test_path, sys_output);

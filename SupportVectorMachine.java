@@ -16,17 +16,11 @@ public class SupportVectorMachine {
 
 	private Map<Double, Integer> build_model(String model_path) throws IOException {
 		BufferedReader model_file = new BufferedReader(new FileReader(model_path));
-		List<String> exptInfo = new ArrayList<String>();
+		// List<String> exptInfo = new ArrayList<String>();
 		String kernel = "";
 		String line = "";
-		while ((line = model_file.readLine()) != "SV") {
-			exptInfo.add(line);
+		while ((line = model_file.readLine()) != null) {
 			System.out.println(line);
-		}
-		while ((line = model_file.readLine()) == "SV") {
-			while ((line = model_file.readLine()) != null) {
-				break;
-			}
 		}
 		return model;
 	}
