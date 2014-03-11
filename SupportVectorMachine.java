@@ -30,6 +30,7 @@ public class SupportVectorMachine {
 			} else {
 				String[] tokens = line.split(" ");
 				double weight = Double.parseDouble(tokens[0]);
+				// System.out.println(weight * 2.0 + " " + weight + " " + weight * 20000 + " " + weight * 10000);
 				model.put(weight, new HashMap<Integer, Integer>());
 				for (int i = 1; i < tokens.length; i ++) {
 					int feat = Integer.parseInt(tokens[i].replaceAll(":1", ""));
@@ -67,12 +68,16 @@ public class SupportVectorMachine {
 			for (double weight : model.keySet()) {
 				Map<Integer, Integer> v_train = model.get(weight);
 				double kernel = kernelFunction(v_train, v_test);
+				System.out.print(kernel + " ");
 				sum += weight * kernel;
 			}
 			sum -= rho;
 
-			if (sum >= 0)	predLabel = "0";
-			else	predLabel = "1";
+			if (sum >= 0) {
+				predLabel = "0";
+			} else {
+				predLabel = "1";
+			}
 
 			compare.add(trueLabel + " " + predLabel);
 			results.add(trueLabel + " " + predLabel + " " + sum); 
@@ -147,17 +152,30 @@ public class SupportVectorMachine {
 		double sum = dotProduct(v_train, v_test);
 		sum = gamma * sum + coef0;		
 		double res = Math.pow(sum, degree);
-		// System.out.println("RESULT is " + res);
 		return res;
 	}
 
 	private double rbfKernel(Map<Integer, Integer> v_train, Map<Integer, Integer> v_test) {
 		double sum = 0.0;
 		Set<Integer> common = intersection(v_train.keySet(), v_test.keySet());
-		for (int e : common) {
-			sum += v_train.get(e) * v_test.get(e);
+		Set<Integer> checked = new HashSet<Integer>();
+		for (int a : common) {
+			sum += Math.pow((v_train.get(a) - v_test.get(a)), 2);
+			checked.add(a);
 		}
-		return sum;
+		for (int b : v_test.keySet()) {
+			if (!checked.contains(b)) {
+				sum += Math.pow(v_test.get(b), 2);
+				checked.add(b);
+			}
+		}
+		for (int c : v_train.keySet()) {
+			if (!checked.contains(c)) {
+				sum += Math.pow(v_train.get(c), 2);
+			}
+		}
+		sum = gamma * sum * (-1.0);
+		return Math.exp(sum);
 	}
 
 	private double sigmoidKernel(Map<Integer, Integer> v_train, Map<Integer, Integer> v_test) {
