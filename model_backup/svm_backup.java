@@ -9,6 +9,7 @@ import java.util.*;
 public class SupportVectorMachine {
     
 	private Map<Double, Map<Integer, Integer>> model = new HashMap<Double, Map<Integer, Integer>>();
+	private Map<Integer, Map<Integer, List<Integer>>> test = new HashMap<Integer, Map<Integer, List<Integer>>>();
 	private double kernelValue;
 
 	private String kernel_type;
@@ -50,23 +51,20 @@ public class SupportVectorMachine {
 
 	public void predict(String test_path, PrintStream sys) throws IOException {
 		List<String> results = new ArrayList<String>();
-		
 		BufferedReader test_file = new BufferedReader(new FileReader(test_path));
 		String line = "";
+		int instance_num = 0;
 		while ((line = test_file.readLine()) != null) {
+			test.put(instance_num, new HashMap<Integer, List<Integer>>());
 			String[] tokens = line.split(" ");
-
-			// trueLabel: test file true class label
-			String trueLabel = tokens[0];
-
-			// instance_Vector: the vector of the test instance with feat:val (feat=val)
-			Map<Integer, Integer> instance_vector = new HashMap<Integer, Integer>();
+			int trueLabel = Integer.parseInt(tokens[0]);
+			List<Integer> vector = new ArrayList<Integer>();
 			for (int i = 1; i < tokens.length; i ++) {
-				int feat = Integer.parseInt(tokens[i].replaceAll(":1", ""));
-				int val = Integer.parseInt(tokens[i].replaceAll("[\\d]+:", ""));
-				instance_vector.put(feat, val);
+				int value = Integer.parseInt(tokens[i].replaceAll(":1", ""));
+				vector.add(value);
 			}
-
+			test.get(instance_num).put(trueLabel, vector);
+			instance_num ++;
 		}
 		// debugTest(test);
 		sys.println("HERE!");
@@ -119,6 +117,8 @@ public class SupportVectorMachine {
 		} 
 		return kernelVal;
 	}
+
+	private double getProduct()
 
 	private void debugModel(Map<Double, Map<Integer, Integer>> model) {
 		for (double weight : model.keySet()) {
