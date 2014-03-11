@@ -56,19 +56,18 @@ public class SupportVectorMachine {
 			String trueLabel = tokens[0];
 			String predLabel = "";
 
-			// v_test: the vector of the test instance with feat:val (feat=val)
-			Map<Integer, Integer> v_test = new HashMap<Integer, Integer>();
+			// instance_vector: the vector of the test instance with feat:val (feat=val)
+			Map<Integer, Integer> instance_vector = new HashMap<Integer, Integer>();
 			for (int i = 1; i < tokens.length; i ++) {
 				int feat = Integer.parseInt(tokens[i].replaceAll(":1", ""));
 				int val = Integer.parseInt(tokens[i].replaceAll("[\\d]+:", ""));
-				v_test.put(feat, val);
+				instance_vector.put(feat, val);
 			}
 
 			double sum = 0.0;
 			for (double weight : model.keySet()) {
-				Map<Integer, Integer> v_train = model.get(weight);
-				double kernel = kernelFunction(v_train, v_test);
-				System.out.print(kernel + " ");
+				Map<Integer, Integer> support_vector = model.get(weight);
+				double kernel = kernelFunction(support_vector, instance_vector);
 				sum += weight * kernel;
 			}
 			sum -= rho;
@@ -126,71 +125,71 @@ public class SupportVectorMachine {
 		return isKernel = line.matches(".*[a-zA-Z]+[a-zA-Z]+.*");
 	}
 
-	private double kernelFunction(Map<Integer, Integer> v_train, Map<Integer, Integer> v_test) {
+	private double kernelFunction(Map<Integer, Integer> support_vector, Map<Integer, Integer> instance_vector) {
 		double kernel = 0.0;
 		if (kernel_type.equals("linear")) {
-			kernel = linearKernel(v_train, v_test);
+			kernel = linearKernel(support_vector, instance_vector);
 		} 
 		if (kernel_type.equals("polynomial")) {
-			kernel = polynomialKernel(v_train, v_test);
+			kernel = polynomialKernel(support_vector, instance_vector);
 		}
 		if (kernel_type.equals("rbf")) {
-			kernel = rbfKernel(v_train, v_test);
+			kernel = rbfKernel(support_vector, instance_vector);
 		}
 		if (kernel_type.equals("sigmoid")) {
-			kernel = sigmoidKernel(v_train, v_test);
+			kernel = sigmoidKernel(support_vector, instance_vector);
 		} 
 		return kernel;
 	}
 
-	private double linearKernel(Map<Integer, Integer> v_train, Map<Integer, Integer> v_test) {
-		double sum = dotProduct(v_train, v_test);
+	private double linearKernel(Map<Integer, Integer> support_vector, Map<Integer, Integer> instance_vector) {
+		double sum = dotProduct(support_vector, instance_vector);
 		return sum;
 	}
 
-	private double polynomialKernel(Map<Integer, Integer> v_train, Map<Integer, Integer> v_test) {
-		double sum = dotProduct(v_train, v_test);
+	private double polynomialKernel(Map<Integer, Integer> support_vector, Map<Integer, Integer> instance_vector) {
+		double sum = dotProduct(support_vector, instance_vector);
 		sum = gamma * sum + coef0;		
 		double res = Math.pow(sum, degree);
 		return res;
 	}
 
-	private double rbfKernel(Map<Integer, Integer> v_train, Map<Integer, Integer> v_test) {
+	private double rbfKernel(Map<Integer, Integer> support_vector, Map<Integer, Integer> instance_vector) {
 		double sum = 0.0;
-		Set<Integer> common = intersection(v_train.keySet(), v_test.keySet());
+		Set<Integer> common = intersection(support_vector.keySet(), instance_vector.keySet());
 		Set<Integer> checked = new HashSet<Integer>();
 		for (int a : common) {
-			sum += Math.pow((v_train.get(a) - v_test.get(a)), 2);
+			sum += Math.pow((support_vector.get(a) - instance_vector.get(a)), 2);
 			checked.add(a);
 		}
-		for (int b : v_test.keySet()) {
+		for (int b : instance_vector.keySet()) {
 			if (!checked.contains(b)) {
-				sum += Math.pow(v_test.get(b), 2);
+				sum += Math.pow(instance_vector.get(b), 2);
 				checked.add(b);
 			}
 		}
-		for (int c : v_train.keySet()) {
+		for (int c : support_vector.keySet()) {
 			if (!checked.contains(c)) {
-				sum += Math.pow(v_train.get(c), 2);
+				sum += Math.pow(support_vector.get(c), 2);
 			}
 		}
 		sum = gamma * sum * (-1.0);
 		return Math.exp(sum);
 	}
 
-	private double sigmoidKernel(Map<Integer, Integer> v_train, Map<Integer, Integer> v_test) {
-		double sum = dotProduct(v_train, v_test);
+	private double sigmoidKernel(Map<Integer, Integer> support_vector, Map<Integer, Integer> instance_vector) {
+		double sum = dotProduct(support_vector, instance_vector);
 		sum = gamma * sum + coef0;
 		double numerator = Math.exp(sum) - Math.exp(-sum);
 		double donominator = Math.exp(sum) + Math.exp(-sum);
 		return numerator / donominator;
 	}
 
-	private double dotProduct(Map<Integer, Integer> v_train, Map<Integer, Integer> v_test) {
+	private double dotProduct(Map<Integer, Integer> support_vector, Map<Integer, Integer> instance_vector) {
 		double sum = 0.0;
-		Set<Integer> common = intersection(v_train.keySet(), v_test.keySet());
+		Set<Integer> common = intersection(support_vector.keySet(), instance_vector.keySet());
 		for (int e : common) {
-			sum += v_train.get(e) * v_test.get(e);
+			sum += support_vector.get(e) * instance_vector.get(e);
 		}
 		return sum;
 	}
