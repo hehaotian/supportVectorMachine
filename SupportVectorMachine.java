@@ -9,6 +9,7 @@ import java.util.*;
 public class SupportVectorMachine {
     
 	private Map<Double, List<Integer>> model = new HashMap<Double, List<Integer>>();
+	private Map<Integer, Map<Integer, List<Integer>>> test = new HashMap<Integer, Map<Integer, List<Integer>>>();
 	private String kernel_type;
 	private double gamma;
 	private double coef0;
@@ -43,11 +44,27 @@ public class SupportVectorMachine {
 			}
 		}
 		getKernelInfo(exptInfo);
-		debugModel(model);
+		// debugModel(model);
 		return model;
 	}
 
 	public void predict(String test_path, PrintStream sys) throws IOException {
+		BufferedReader test_file = new BufferedReader(new FileReader(test_path));
+		String line = "";
+		int instance_num = 0;
+		while ((line = test_file.readLine()) != null) {
+			test.put(instance_num, new HashMap<Integer, List<Integer>>());
+			String[] tokens = line.split(" ");
+			int trueLabel = Integer.parseInt(tokens[0]);
+			List<Integer> vector = new ArrayList<Integer>();
+			for (int i = 1; i < tokens.length; i ++) {
+				int value = Integer.parseInt(tokens[i].replaceAll(":1", ""));
+				vector.add(value);
+			}
+			test.get(instance_num).put(trueLabel, vector);
+			instance_num ++;
+		}
+		// debugTest(test);
 		sys.println("HERE!");
 	}
 
@@ -82,6 +99,12 @@ public class SupportVectorMachine {
 	private void debugModel(Map<Double, List<Integer>> model) {
 		for (double d : model.keySet()) {
 			System.out.println(d + " with its vector info: " + model.get(d));
+		}
+	}
+
+	private void debugTest(Map<Integer, Map<Integer, List<Integer>>> test) {
+		for (int instance_num : test.keySet()) {
+			System.out.println(instance_num + " with its vector info: " + test.get(instance_num));
 		}
 	}
 }
