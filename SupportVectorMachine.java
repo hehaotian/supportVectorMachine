@@ -8,7 +8,8 @@ import java.util.*;
 
 public class SupportVectorMachine {
     
-	private Map<Double, Map<Integer, Integer>> model = new HashMap<Double, Map<Integer, Integer>>();
+    private Map<Integer, Double> sv_dir = new HashMap<Integer, Double>();
+	private Map<Integer, Map<Integer, Integer>> model = new HashMap<Integer, Map<Integer, Integer>>();
 
 	private String kernel_type;
 	private double gamma;
@@ -20,23 +21,25 @@ public class SupportVectorMachine {
 		this.model = build_model(model_path);
 	}
 
-	private Map<Double, Map<Integer, Integer>> build_model(String model_path) throws IOException {
+	private Map<Integer, Map<Integer, Integer>> build_model(String model_path) throws IOException {
 		BufferedReader model_file = new BufferedReader(new FileReader(model_path));
 		List<String> exptInfo = new ArrayList<String>();
 		String line = "";
+		int sv_id = 0;
 		while ((line = model_file.readLine()) != null) {
 			if (isKernel(line)) {
 				exptInfo.add(line);
 			} else {
 				String[] tokens = line.split(" ");
 				double weight = Double.parseDouble(tokens[0]);
-				// System.out.println(weight * 2.0 + " " + weight + " " + weight * 20000 + " " + weight * 10000);
-				model.put(weight, new HashMap<Integer, Integer>());
+				sv_dir.put(sv_id, weight);
+				model.put(sv_id, new HashMap<Integer, Integer>());
 				for (int i = 1; i < tokens.length; i ++) {
 					int feat = Integer.parseInt(tokens[i].replaceAll(":1", ""));
 					int val = Integer.parseInt(tokens[i].replaceAll("[\\d]+:", ""));
-					model.get(weight).put(feat, val);
+					model.get(sv_id).put(feat, val);
 				}
+				sv_id ++;
 			}
 		}
 		getKernelInfo(exptInfo);
@@ -62,21 +65,20 @@ public class SupportVectorMachine {
 				int feat = Integer.parseInt(tokens[i].replaceAll(":1", ""));
 				int val = Integer.parseInt(tokens[i].replaceAll("[\\d]+:", ""));
 				instance_vector.put(feat, val);
+				// System.out.println(feat + "\t" + val);
 			}
 
 			double sum = 0.0;
-			for (double weight : model.keySet()) {
-				Map<Integer, Integer> support_vector = model.get(weight);
+			for (int id : sv_dir.keySet()) {
+				double weight = sv_dir.get(id);
+				Map<Integer, Integer> support_vector = model.get(id);
 				double kernel = kernelFunction(support_vector, instance_vector);
 				sum += weight * kernel;
 			}
 			sum -= rho;
 
-			if (sum >= 0) {
-				predLabel = "0";
-			} else {
-				predLabel = "1";
-			}
+			if (sum >= 0)	predLabel = "0";
+			else	predLabel = "1";
 
 			compare.add(trueLabel + " " + predLabel);
 			results.add(trueLabel + " " + predLabel + " " + sum); 
@@ -94,13 +96,6 @@ public class SupportVectorMachine {
 			if (tokens[0].equals("coef0")) coef0 = Double.parseDouble(tokens[1]);
 			if (tokens[0].equals("degree")) degree = Double.parseDouble(tokens[1]);
 		}
-		// DEBUG:
-		System.out.println(kernel_type);
-		System.out.println(rho);
-		System.out.println(gamma);
-		System.out.println(coef0);
-		System.out.println(degree);
-		//
 	}
 
 	private void printResults(List<String> results, PrintStream sys) {
@@ -149,7 +144,7 @@ public class SupportVectorMachine {
 
 	private double polynomialKernel(Map<Integer, Integer> support_vector, Map<Integer, Integer> instance_vector) {
 		double sum = dotProduct(support_vector, instance_vector);
-		sum = gamma * sum + coef0;		
+		sum = gamma * sum + coef0;
 		double res = Math.pow(sum, degree);
 		return res;
 	}
@@ -189,6 +184,7 @@ public class SupportVectorMachine {
 		double sum = 0.0;
 		Set<Integer> common = intersection(support_vector.keySet(), instance_vector.keySet());
 		for (int e : common) {
+			// sum += 1;
 			sum += support_vector.get(e) * instance_vector.get(e);
 		}
 		return sum;
